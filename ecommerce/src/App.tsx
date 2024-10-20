@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Col, Container, Row } from "react-bootstrap";
+import { useQueryService } from "./services";
 
+type ProductType = {
+  _id: string;
+  category: string;
+  createdAt: string;
+  description: string;
+  mainImage: {
+    _id: string;
+    localPath: string;
+    url: string;
+  };
+  name: string;
+  owner: string;
+  price: number;
+  stock: number;
+};
 function App() {
-  const [count, setCount] = useState(0)
+  const { data, status } = useQueryService({
+    key: "allproducts",
+    url: "/ecommerce/products?page=1&limit=10",
+    method: "get",
+  });
+
+  if (status === "pending") {
+    return "Loading...";
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Container>
+      <Row>
+        {data?.products?.map((product: ProductType) => (
+          <Col key={product._id}>
+            {/* <img src={product.mainImage.url} alt={product.name} /> */}
+            <h3>{product.name}</h3>
+            <p>{product.description}</p>
+            <p>Price: ${product.price}</p>
+          </Col>
+        ))}
+      </Row>
+    </Container>
+  );
 }
 
-export default App
+export default App;
